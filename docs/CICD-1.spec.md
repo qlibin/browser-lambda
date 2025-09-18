@@ -300,7 +300,7 @@ jobs:
         run: |
           npm ci
           npm run dist
-          docker build --platform linux/arm64 \
+          docker build \
             -t $ECR_REPOSITORY:latest \
             -t $ECR_REPOSITORY:${{ steps.meta.outputs.image_tag }} .
 
