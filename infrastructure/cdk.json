@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --esm bin/browser-lambda.ts",
+  "app": "node --loader ts-node/esm bin/browser-lambda.ts",
   "context": {
     "environments": {
       "dev": {
