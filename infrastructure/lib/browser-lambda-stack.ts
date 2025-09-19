@@ -29,21 +29,27 @@ export class BrowserLambdaStack extends Stack {
       description: 'Execution role for browser-lambda to pull from ECR and write logs',
     });
 
-    execRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
+    execRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')
+    );
 
     // Allow pull from ECR with least privilege
-    execRole.addToPolicy(new iam.PolicyStatement({
-      actions: ['ecr:GetAuthorizationToken'],
-      resources: ['*'],
-    }));
-    execRole.addToPolicy(new iam.PolicyStatement({
-      actions: [
-        'ecr:BatchCheckLayerAvailability',
-        'ecr:GetDownloadUrlForLayer',
-        'ecr:BatchGetImage',
-      ],
-      resources: [repository.repositoryArn],
-    }));
+    execRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['ecr:GetAuthorizationToken'],
+        resources: ['*'],
+      })
+    );
+    execRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'ecr:BatchCheckLayerAvailability',
+          'ecr:GetDownloadUrlForLayer',
+          'ecr:BatchGetImage',
+        ],
+        resources: [repository.repositoryArn],
+      })
+    );
 
     // Image URI with tag
     const imageUri = `${Stack.of(this).account}.dkr.ecr.${Stack.of(this).region}.amazonaws.com/${ecrRepoName}:${imageTag}`;
@@ -60,7 +66,7 @@ export class BrowserLambdaStack extends Stack {
       environment: {
         NODE_ENV: 'production',
       },
-      logRetention: logs.RetentionDays.THIRTY_DAYS,
+      logRetention: logs.RetentionDays.ONE_MONTH,
     });
 
     new CfnOutput(this, 'FunctionName', { value: fn.functionName });
