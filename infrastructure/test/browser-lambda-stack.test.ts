@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Template, Match } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { BrowserLambdaStack } from '../lib/browser-lambda-stack';
 
 // AAA pattern tests for CDK stack
@@ -16,7 +16,8 @@ describe('BrowserLambdaStack', () => {
     }>
   ) => {
     const app = new cdk.App();
-    const stack = new BrowserLambdaStack(app, 'TestStack', {
+
+    return new BrowserLambdaStack(app, 'TestStack', {
       env: baseEnv,
       description: 'Test stack',
       environmentName: overrides?.envName ?? 'dev',
@@ -25,7 +26,6 @@ describe('BrowserLambdaStack', () => {
       imageTag: overrides?.imageTag ?? 'sha-abc',
       tags: { app: 'browser-lambda', env: overrides?.envName ?? 'dev' },
     });
-    return stack;
   };
 
   test('synthesizes expected CloudFormation template (snapshot)', () => {
