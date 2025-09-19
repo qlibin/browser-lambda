@@ -7,12 +7,14 @@ import { BrowserLambdaStack } from '../lib/browser-lambda-stack';
 describe('BrowserLambdaStack', () => {
   const baseEnv = { account: '123456789012', region: 'us-east-1' } as const;
 
-  const makeStack = (overrides?: Partial<{
-    envName: string;
-    repo: string;
-    lambdaName: string;
-    imageTag: string;
-  }>) => {
+  const makeStack = (
+    overrides?: Partial<{
+      envName: string;
+      repo: string;
+      lambdaName: string;
+      imageTag: string;
+    }>
+  ) => {
     const app = new cdk.App();
     const stack = new BrowserLambdaStack(app, 'TestStack', {
       env: baseEnv,

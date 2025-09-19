@@ -12,20 +12,19 @@ interface EnvConfig {
   tags?: Record<string, string>;
 }
 
-interface AppContext {
-  environments: Record<string, EnvConfig>;
-  defaultEnvironment?: string;
-}
-
 const app = new cdk.App();
 
-const environmentName = (app.node.tryGetContext('environment') as string | undefined) ??
-  (app.node.tryGetContext('ENV_NAME') as string | undefined) ?? undefined;
+const environmentName =
+  (app.node.tryGetContext('environment') as string | undefined) ??
+  (app.node.tryGetContext('ENV_NAME') as string | undefined) ??
+  undefined;
 
 const imageTag = (app.node.tryGetContext('imageTag') as string | undefined) ?? 'latest';
 
 // Direct context reads without workarounds
-const environments = app.node.tryGetContext('environments') as Record<string, EnvConfig> | undefined;
+const environments = app.node.tryGetContext('environments') as
+  | Record<string, EnvConfig>
+  | undefined;
 const defaultEnvironment = app.node.tryGetContext('defaultEnvironment') as string | undefined;
 
 if (!environments || Object.keys(environments).length === 0) {
@@ -35,13 +34,17 @@ if (!environments || Object.keys(environments).length === 0) {
 const resolvedEnvName = environmentName ?? defaultEnvironment ?? 'dev';
 const envCfg = environments[resolvedEnvName];
 if (!envCfg) {
-  throw new Error(`Unknown environment '${resolvedEnvName}'. Available: ${Object.keys(environments).join(', ')}`);
+  throw new Error(
+    `Unknown environment '${resolvedEnvName}'. Available: ${Object.keys(environments).join(', ')}`
+  );
 }
 
 // Optional account sanity check if AWS_ACCOUNT_ID is provided in environment
 const providedAccountId = process.env.AWS_ACCOUNT_ID;
 if (providedAccountId && providedAccountId !== envCfg.account) {
-  throw new Error(`AWS account mismatch: AWS_ACCOUNT_ID=${providedAccountId} does not match CDK context account=${envCfg.account} for environment '${resolvedEnvName}'.`);
+  throw new Error(
+    `AWS account mismatch: AWS_ACCOUNT_ID=${providedAccountId} does not match CDK context account=${envCfg.account} for environment '${resolvedEnvName}'.`
+  );
 }
 
 const stack = new BrowserLambdaStack(app, `BrowserLambdaStack-${envCfg.envName}`, {
@@ -51,7 +54,7 @@ const stack = new BrowserLambdaStack(app, `BrowserLambdaStack-${envCfg.envName}`
   ecrRepoName: envCfg.ecrRepoName,
   lambdaName: envCfg.lambdaName,
   imageTag,
-  tags: envCfg.tags ?? {}
+  tags: envCfg.tags ?? {},
 });
 
 cdk.Tags.of(stack).add('app', 'browser-lambda');
