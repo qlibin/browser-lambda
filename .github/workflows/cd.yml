@@ -13,6 +13,7 @@ env:
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
   ENV_NAME: dev
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  RUN_BOOTSTRAP: ${{ vars.RUN_BOOTSTRAP || 'false' }}
 
 jobs:
   build-validate-test:
@@ -161,9 +162,19 @@ jobs:
         working-directory: infrastructure
         run: npm ci
 
-      - name: CDK Bootstrap (idempotent)
+      - name: CDK Bootstrap (optional)
+        if: env.RUN_BOOTSTRAP == 'true'
         working-directory: infrastructure
-        run: npx cdk bootstrap aws://${{ env.AWS_ACCOUNT_ID }}/${{ env.AWS_REGION }}
+        env:
+          CDK_NEW_BOOTSTRAP: "1"
+        run: |
+          npx cdk bootstrap \
+            --qualifier bl${{ env.ENV_NAME }} \
+            aws://${{ env.AWS_ACCOUNT_ID }}/${{ env.AWS_REGION }}
+
+      - name: Skip bootstrap (pre-bootstrapped account)
+        if: env.RUN_BOOTSTRAP != 'true'
+        run: echo "Skipping CDK bootstrap (RUN_BOOTSTRAP is not 'true'). Ensure the account is pre-bootstrapped using modern bootstrap."
 
       - name: CDK Deploy
         working-directory: infrastructure
