@@ -73,6 +73,7 @@ jobs:
   package-and-push-image:
     runs-on: ubuntu-24.04-arm
     needs: build-validate-test
+    environment: dev
     permissions:
       id-token: write
       contents: read
